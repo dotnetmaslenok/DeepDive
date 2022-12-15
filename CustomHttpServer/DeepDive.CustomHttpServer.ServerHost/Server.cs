@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using DeepDive.CustomHttpServer.ServerHost.Interfaces;
 
 namespace DeepDive.CustomHttpServer.ServerHost
 {
@@ -22,7 +23,18 @@ namespace DeepDive.CustomHttpServer.ServerHost
 				var client = await listener.AcceptTcpClientAsync();
 				using (var stream = client.GetStream())
 				{
-					await _handler.HandleAsync(stream);
+					using (var reader = new StreamReader(stream))
+					{
+						string? line;
+						var firstLine = await reader.ReadLineAsync();
+						while ((line = await reader.ReadLineAsync()) != string.Empty)
+						{
+						
+						}
+
+						var request = RequestParser.Parse(firstLine);
+						await _handler.HandleAsync(stream, request);
+					}
 				}
 			}
 		}
